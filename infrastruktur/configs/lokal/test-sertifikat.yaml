@@ -1,0 +1,20 @@
+# Test: et sertifikat for de lokale vertsnavnene. Sjekk med
+#   kubectl get certificate -n plattform-test
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: plattform-test
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: test-localhost
+  namespace: plattform-test
+spec:
+  secretName: test-localhost-tls
+  dnsNames:
+    - sal.localhost
+    - klienthub.localhost
+  issuerRef:
+    kind: ClusterIssuer
+    name: plattform

@@ -1,0 +1,6 @@
+# Rancher Desktop: cert-manager som i base, uten tillegg.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../kilder
+  - ../base/cert-manager

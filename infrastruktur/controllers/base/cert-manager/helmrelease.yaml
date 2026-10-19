@@ -1,0 +1,50 @@
+# cert-manager – felles for alle klustre. Miljøspesifikke tillegg ligger i
+# infrastruktur/controllers/<miljø>/.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  interval: 30m
+  releaseName: cert-manager
+  chart:
+    spec:
+      chart: cert-manager
+      version: "v1.21.2"           # fast versjon – oppgraderes med en PR
+      sourceRef:
+        kind: HelmRepository
+        name: jetstack
+        namespace: flux-system
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    crds:
+      enabled: true
+      keep: true                   # CRD-ene (og dermed alle sertifikater) blir igjen ved avinstallering
+    # Sertifikater kan bestilles direkte fra Gateway-ressurser (Gateway API).
+    # Krever at Gateway API-CRD-ene finnes i klusteret når cert-manager starter.
+    config:
+      apiVersion: controller.config.cert-manager.io/v1alpha1
+      kind: ControllerConfiguration
+      enableGatewayAPI: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+    webhook:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+    cainjector:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi

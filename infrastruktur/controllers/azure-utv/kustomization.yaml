@@ -1,0 +1,9 @@
+# AKS utv: cert-manager med workload identity, så den kan oppdatere Azure DNS
+# (DNS-01 mot Let's Encrypt) uten lagrede passord.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../kilder
+  - ../base/cert-manager
+patches:
+  - path: workload-identity.yaml

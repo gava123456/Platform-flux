@@ -1,0 +1,35 @@
+# NESTE STEG (ikke i bruk ennå): HTTPS på Traefik-Gatewayen, med sertifikat
+# fra cert-manager. Annotasjonen gjør at cert-manager lager et sertifikat for
+# hver HTTPS-listener, med listenerens hostname, og lagrer det i Secret-en.
+#
+# Gatewayen eies i dag av storkonf-k8s/plattform/traefik/gateway.yaml.
+# Når Traefik og Gateway flyttes inn i dette repoet, blir denne filen en del av
+# infrastruktur/configs/<miljø>/.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: traefik-gateway
+  namespace: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: plattform
+spec:
+  gatewayClassName: traefik
+  listeners:
+    - name: web
+      protocol: HTTP
+      port: 8000
+      allowedRoutes:
+        namespaces:
+          from: All
+    # Én HTTPS-listener per vertsnavn (cert-manager krever hostname)
+    - name: sal-https
+      protocol: HTTPS
+      port: 8443                  # Traefiks 'websecure'-entrypoint i containeren
+      hostname: sal.localhost
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: sal-localhost-tls
+      allowedRoutes:
+        namespaces:
+          from: All

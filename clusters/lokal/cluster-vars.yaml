@@ -1,0 +1,9 @@
+# Variabler som settes inn i manifestene (${NAVN}) for dette klusteret.
+# Ingen hemmeligheter her.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-vars
+  namespace: flux-system
+data:
+  KLUSTER_NAVN: rancher-desktop

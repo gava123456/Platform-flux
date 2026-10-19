@@ -1,0 +1,40 @@
+# Lokalt kan ikke Let's Encrypt brukes: LE må kunne nå domenet (HTTP-01) eller
+# du må styre offentlig DNS for det (DNS-01), og *.localhost er ingen av delene.
+# I stedet lager cert-manager en egen CA i klusteret. ClusterIssuer-en heter
+# 'plattform' både lokalt og i Azure, så apper og Gateways refererer likt overalt.
+
+# 1. Selvsignert utsteder – brukes bare til å lage CA-en under
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selvsignert
+spec:
+  selfSigned: {}
+---
+# 2. Lokal CA (rotsertifikat). Ligger i cert-manager-namespacet, der
+#    ClusterIssuers leter etter hemmelighetene sine.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: lokal-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: Lokal plattform-CA (${KLUSTER_NAVN})
+  secretName: lokal-ca
+  duration: 87600h                # 10 år – bare lokalt
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    kind: ClusterIssuer
+    name: selvsignert
+---
+# 3. Utstederen apper og Gateways bruker
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: plattform
+spec:
+  ca:
+    secretName: lokal-ca

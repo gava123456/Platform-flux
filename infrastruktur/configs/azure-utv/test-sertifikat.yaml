@@ -1,0 +1,19 @@
+# Test mot Let's Encrypt STAGING (ikke betrodd av nettlesere, men uten kvoter).
+# Bytt til 'plattform' når staging virker.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: plattform-test
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: test-staging
+  namespace: plattform-test
+spec:
+  secretName: test-staging-tls
+  dnsNames:
+    - "plattform-test.${AZURE_DNS_SONE}"
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-staging

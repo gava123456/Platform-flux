@@ -1,0 +1,28 @@
+# Kobler det lokale klusteret til plattform-repoet. Fyll inn url og kjør
+#   kubectl apply -f bootstrap/lokal.yaml
+# Krever at Flux er installert (flux install) og Secret-en plattform-git (se README).
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: plattform
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: "https://github.com/DIN-BRUKER/plattform-flux.git"
+  ref:
+    branch: main
+  secretRef:
+    name: plattform-git
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: plattform
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./clusters/lokal
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: plattform

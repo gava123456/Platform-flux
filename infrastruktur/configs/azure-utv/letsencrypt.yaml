@@ -1,0 +1,47 @@
+# Let's Encrypt med DNS-01 mot Azure DNS. DNS-01 virker også for klustre som
+# ikke kan nås fra internett, så lenge domenet ligger i en offentlig Azure DNS-sone.
+# cert-manager logger inn med workload identity (ingen lagrede passord).
+#
+# Bruk ALLTID letsencrypt-staging først: produksjon har strenge grenser for
+# antall sertifikater, og feilforsøk teller.
+
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: "${ACME_EPOST}"
+    privateKeySecretRef:
+      name: letsencrypt-staging-konto
+    solvers:
+      - dns01:
+          azureDNS:
+            subscriptionID: "${AZURE_SUBSCRIPTION_ID}"
+            resourceGroupName: "${AZURE_DNS_RESSURSGRUPPE}"
+            hostedZoneName: "${AZURE_DNS_SONE}"
+            environment: AzurePublicCloud
+            managedIdentity:
+              clientID: "${CERT_MANAGER_CLIENT_ID}"
+---
+# 'plattform' = Let's Encrypt produksjon. Samme navn som lokalt.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: plattform
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: "${ACME_EPOST}"
+    privateKeySecretRef:
+      name: letsencrypt-prod-konto
+    solvers:
+      - dns01:
+          azureDNS:
+            subscriptionID: "${AZURE_SUBSCRIPTION_ID}"
+            resourceGroupName: "${AZURE_DNS_RESSURSGRUPPE}"
+            hostedZoneName: "${AZURE_DNS_SONE}"
+            environment: AzurePublicCloud
+            managedIdentity:
+              clientID: "${CERT_MANAGER_CLIENT_ID}"

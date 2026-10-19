@@ -1,0 +1,15 @@
+# Variabler som settes inn i manifestene (${NAVN}) for AKS utv.
+# UTKAST – fyll inn sammen med plattformteamet. Ingen hemmeligheter her:
+# ID-ene under er identifikatorer, ikke passord.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-vars
+  namespace: flux-system
+data:
+  KLUSTER_NAVN: "<aks-utv>"
+  ACME_EPOST: "<felles-postboks@stortinget.no>"      # varsler om utløp fra Let's Encrypt
+  AZURE_SUBSCRIPTION_ID: "<subscription-id>"
+  AZURE_DNS_RESSURSGRUPPE: "<ressursgruppe-med-dns-sonen>"
+  AZURE_DNS_SONE: "<offentlig-dns-sone>"              # f.eks. utv.eksempel.no
+  CERT_MANAGER_CLIENT_ID: "<client-id-til-managed-identity>"
